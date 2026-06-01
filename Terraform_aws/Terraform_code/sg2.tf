@@ -1,8 +1,7 @@
 resource "aws_security_group" "ec2_sg" {
   name        = "ec2-sg"
-  description = "Security group for EC2(app) "
+  description = "Security group for EC2 app"
   vpc_id      = aws_vpc.vpc.id
-
   tags = {
     Name = "ec2-sg"
   }
@@ -14,7 +13,7 @@ resource "aws_vpc_security_group_ingress_rule" "ec2_in_http" {
   ip_protocol                  = "tcp"
   referenced_security_group_id = aws_security_group.alb_sg.id
 }
-resource "aws_vpc_security_group_ingress_rule" "ec2_in_applocation" {
+resource "aws_vpc_security_group_ingress_rule" "ec2_in_application" {
   security_group_id            = aws_security_group.ec2_sg.id
   from_port                    = 8080
   to_port                      = 8080
@@ -26,12 +25,9 @@ resource "aws_vpc_security_group_egress_rule" "ec2_eg" {
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
 }
-
-
-
 resource "aws_security_group" "ec2_ssh" {
   name        = "ec2-ssh-sg"
-  description = "Security group for EC2(ssh) "
+  description = "Security group for EC2 SSH access"
   vpc_id      = aws_vpc.vpc.id
   tags = {
     Name = "ec2-ssh-sg"
@@ -43,20 +39,15 @@ resource "aws_vpc_security_group_ingress_rule" "ec2_in_ssh" {
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
-
 }
 resource "aws_vpc_security_group_egress_rule" "ec2_eg_ssh" {
   security_group_id = aws_security_group.ec2_ssh.id
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
 }
-
-
-
-
 resource "aws_security_group" "rds_sg" {
   name        = "terraform-rds-sg"
-  description = "Allow rds access from application servers"
+  description = "Allow RDS access from application servers"
   vpc_id      = aws_vpc.vpc.id
 
   tags = {
@@ -76,13 +67,9 @@ resource "aws_vpc_security_group_egress_rule" "rds_eg" {
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
 }
-
-
-
-
 resource "aws_security_group" "alb_sg" {
   name        = "terraform-alb-sg"
-  description = "Security group for Alb "
+  description = "Security group for ALB "
   vpc_id      = aws_vpc.vpc.id
 
   tags = {

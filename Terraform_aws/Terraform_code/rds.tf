@@ -1,14 +1,10 @@
 resource "aws_db_subnet_group" "rds-subnet" {
   name       = "rds-subnet"
   subnet_ids = [aws_subnet.privatesubnetA.id, aws_subnet.privatesubnetB.id]
-
   tags = {
     Name = "RDS subnet group"
   }
 }
-
-
-
 resource "aws_db_instance" "rds" {
   allocated_storage          = 10
   db_name                    = "terraform_rds"
