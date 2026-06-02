@@ -7,8 +7,10 @@ resource "aws_instance" "tf_ec2" {
     aws_security_group.ec2_ssh.id,
   ]
   key_name = var.key_name
+
   tags = {
     Name = "terraform-ec2"
   }
+  
 }
 

@@ -23,7 +23,9 @@ resource "aws_db_instance" "rds" {
   publicly_accessible        = false
   deletion_protection        = true
   backup_retention_period    = 1
+
   tags = {
     Name = "terraform-rds"
   }
+  
 }

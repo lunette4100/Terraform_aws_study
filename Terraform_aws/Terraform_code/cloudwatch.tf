@@ -10,8 +10,10 @@ resource "aws_cloudwatch_metric_alarm" "alarm_ec2" {
   alarm_description   = "This metric monitors EC2 CPU utilization"
   alarm_actions       = [var.cloudwatch_alarm]
   ok_actions = [var.cloudwatch_alarm]
+
   dimensions = {
     InstanceId = aws_instance.tf_ec2.id
   }
+  
 }
 
