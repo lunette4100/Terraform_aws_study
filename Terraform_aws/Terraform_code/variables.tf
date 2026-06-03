@@ -1,5 +1,6 @@
 
 variable "cidr_block" {
+  description = "Cidr block for VPC "
   default = "10.0.0.0/16"
 }
 variable "key_name" {

@@ -17,7 +17,7 @@ resource "aws_internet_gateway" "igw" {
   }
 
 }
-resource "aws_subnet" "publicsubnetA" {
+resource "aws_subnet" "publicsubnet_A" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = var.default_az[0]
@@ -28,7 +28,7 @@ resource "aws_subnet" "publicsubnetA" {
   }
 
 }
-resource "aws_subnet" "publicsubnetB" {
+resource "aws_subnet" "publicsubnet_B" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = var.default_az[1]
@@ -39,7 +39,7 @@ resource "aws_subnet" "publicsubnetB" {
   }
 
 }
-resource "aws_subnet" "privatesubnetA" {
+resource "aws_subnet" "privatesubnet_A" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.11.0/24"
   availability_zone = var.default_az[0]
@@ -49,7 +49,7 @@ resource "aws_subnet" "privatesubnetA" {
   }
 
 }
-resource "aws_subnet" "privatesubnetB" {
+resource "aws_subnet" "privatesubnet_B" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.12.0/24"
   availability_zone = var.default_az[1] 
@@ -68,10 +68,10 @@ resource "aws_route" "route" {
   gateway_id             = aws_internet_gateway.igw.id
 }
 resource "aws_route_table_association" "public-routetable-a" {
-  subnet_id      = aws_subnet.publicsubnetA.id
+  subnet_id      = aws_subnet.publicsubnet_A.id
   route_table_id = aws_route_table.routetable.id
 }
 resource "aws_route_table_association" "public-routetable-b" {
-  subnet_id      = aws_subnet.publicsubnetB.id
+  subnet_id      = aws_subnet.publicsubnet_B.id
   route_table_id = aws_route_table.routetable.id
 }
