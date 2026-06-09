@@ -10,13 +10,11 @@ jobs:
   Terraform_test_jobs:
     runs-on: ubuntu-latest
 
-
     defaults:
       run:
         working-directory: Terraform_aws/Terraform_code
 
     steps:
-    
       - name: Checkout repository
         uses: actions/checkout@v4
 
