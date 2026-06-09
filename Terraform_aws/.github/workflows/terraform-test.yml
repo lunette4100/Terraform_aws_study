@@ -7,16 +7,19 @@ on:
       - 'Terraform_aws/Terraform_code/**/*.tftest.hcl'
       - '.github/workflows/*.yml'
       - '.github/workflows/*.yaml'
+    branches:
+      - Terraform 
 
   push:
     branches:
       - main
+      - Terraform
     paths:
       - 'Terraform_aws/Terraform_code/**'
       - 'Terraform_aws/Terraform_code/**/*.tftest.hcl'
       - '.github/workflows/*.yml'
       - '.github/workflows/*.yaml'
-
+ 
 jobs:
   Terraform_test_jobs:
     runs-on: ubuntu-latest
