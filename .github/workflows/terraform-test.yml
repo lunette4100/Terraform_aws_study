@@ -5,10 +5,19 @@ on:
     branches:
       - master
       - Terraform
-    
+
+  pull_request:
+   paths:
+      - "Terraform_aws/Terraform_code/**"
+      - ".github/**"
 jobs:
   Terraform_test_jobs:
     runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ap-northeast-1
 
     defaults:
       run:
