@@ -1,35 +1,22 @@
 name: Terraform Test
 
 on:
-  pull_request:
-    paths:
-      - 'Terraform_aws/Terraform_code/**'
-      - 'Terraform_aws/Terraform_code/**/*.tftest.hcl'
-      - '.github/workflows/*.yml'
-      - '.github/workflows/*.yaml'
-    branches:
-      - Terraform 
-
   push:
     branches:
-      - main
+      - master
       - Terraform
-   
- 
+    
 jobs:
   Terraform_test_jobs:
     runs-on: ubuntu-latest
 
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ap-northeast-1
 
     defaults:
       run:
         working-directory: Terraform_aws/Terraform_code
 
     steps:
+    
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -39,5 +26,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Terraform validate
+        run: terraform validate
+
       - name: Terraform Test
         run: terraform test
+
+      
