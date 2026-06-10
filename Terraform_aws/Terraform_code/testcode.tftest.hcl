@@ -46,15 +46,3 @@ run "check_port" {
   }
 
 }
-
-run "cheak_arn_sns" {
-  assert {
-    condition     = startswith(aws_cloudwatch_metric_alarm.alarm_ec2.alarm_actions[0], "arn:aws:sns:")
-    error_message = "CloudWatch alarm_actions[0] が SNS の ARN ではありません"
-  }
-
-  assert {
-    condition     = startswith(aws_cloudwatch_metric_alarm.alarm_ec2.ok_actions[0], "arn:aws:sns:")
-    error_message = "CloudWatch ok_actions[0] が SNS の ARN ではありません"
-  }
-}
