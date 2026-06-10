@@ -18,10 +18,9 @@ variable "rds_password" {
   sensitive   = true
 }
 
-variable "cloudwatch_alarm" {
-  description = "ARN of the SNS Topic"
+variable "sns_email_adress" {
+  description = "e-mail adress CloudWatch Alarm"
   type        = string
 }
-
 
 
