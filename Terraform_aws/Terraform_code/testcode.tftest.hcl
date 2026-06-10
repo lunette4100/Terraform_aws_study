@@ -1,9 +1,3 @@
-variables {
-    key_name         = "Philo"
-    rds_password     = "adminadmin"
-    cloudwatch_alarm = "arn:aws:sns:ap-northeast-1:381155823609:cloudformation-study-alarm-topic"
-  }
-
 run "check_vpc_cidr_and_name" {
   command = plan
   
