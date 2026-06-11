@@ -7,9 +7,10 @@ on:
       - Terraform
 
   pull_request:
-   paths:
+    paths:
       - "Terraform_aws/Terraform_code/**"
       - ".github/**"
+
 jobs:
   Terraform_test:
     runs-on: ubuntu-latest
@@ -17,10 +18,11 @@ jobs:
     permissions:
       id-token: write
       contents: read
-  
+
     defaults:
       run:
         working-directory: Terraform_aws/Terraform_code
+
     env:
       TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
       TF_VAR_rds_password: ${{ secrets.TF_VAR_RDS_PASSWORD }}
@@ -34,13 +36,19 @@ jobs:
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
-          role-to-assume: ${{secrets.ASSUME_ROLE_ARN}}
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
           aws-region: ap-northeast-1
+
+      - name: Show GitHub token info (for sub)
+        run: |
+          echo "ref=${{ github.ref }}"
+          echo "event_name=${{ github.event_name }}"
+          echo "repository=${{ github.repository }}"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
-        with: 
-         terraform_version: '1.7.0'
+        with:
+          terraform_version: '1.7.0'
 
       - name: Terraform Init
         run: terraform init
@@ -53,4 +61,3 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
-      
