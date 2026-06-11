@@ -23,6 +23,6 @@ resource "aws_sns_topic" "sns_topic"{
 
 resource "aws_sns_topic_subscription" "sns_subscription"{
 topic_arn = aws_sns_topic.sns_topic.arn
-endpoint  = var.sns_email_adress
+endpoint  = var.sns_email_address
 protocol  = "email"
 }
