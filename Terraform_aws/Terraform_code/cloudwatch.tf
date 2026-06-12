@@ -8,8 +8,8 @@ resource "aws_cloudwatch_metric_alarm" "alarm_ec2" {
   statistic           = "Average"
   threshold           = 50
   alarm_description   = "This metric monitors EC2 CPU utilization"
-  alarm_actions       = [var.cloudwatch_alarm]
-  ok_actions = [var.cloudwatch_alarm]
+  alarm_actions       = [aws_sns_topic.sns_topic.arn]
+
 
   dimensions = {
     InstanceId = aws_instance.tf_ec2.id
@@ -17,3 +17,12 @@ resource "aws_cloudwatch_metric_alarm" "alarm_ec2" {
   
 }
 
+resource "aws_sns_topic" "sns_topic"{
+ name     = "aws-study-alarm-topic"
+}
+
+resource "aws_sns_topic_subscription" "sns_subscription"{
+topic_arn = aws_sns_topic.sns_topic.arn
+endpoint  = var.sns_email_address
+protocol  = "email"
+}

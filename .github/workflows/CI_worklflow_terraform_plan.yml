@@ -1,0 +1,57 @@
+name: workflow_terraform_plan
+
+on:
+  push:
+    branches:
+      - main
+      - Terraform
+
+  pull_request:
+    paths:
+      - "Terraform_aws/Terraform_code/**"
+      - ".github/**"
+
+jobs:
+  Terraform_test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    defaults:
+      run:
+        working-directory: Terraform_aws/Terraform_code
+
+    env:
+      TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
+      TF_VAR_rds_password: ${{ secrets.TF_VAR_RDS_PASSWORD }}
+      TF_VAR_sns_email_address: ${{ secrets.TF_VAR_SNS_EMAIL_ADDRESS }}
+      AWS_DEFAULT_REGION: ap-northeast-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
+          aws-region: ap-northeast-1
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: '1.7.0'
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform Test
+        run: terraform test
+
+      - name: Terraform Plan
+        run: terraform plan
