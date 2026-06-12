@@ -3,7 +3,7 @@ name: workflow_terraform_apply
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   terraform_apply:
