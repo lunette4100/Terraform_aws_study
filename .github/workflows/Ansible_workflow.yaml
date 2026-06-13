@@ -1,11 +1,65 @@
 name: workflow_Ansible
 
-on: 
-  workflow_dispatch:
+on:
+  push:
+    branches:
+      - Ansible
+
+  pull_request:
+    paths:
+      - "Terraform/**"
+      - ".github/**"
+
 
 jobs:
+  terraform_apply:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+  
+    defaults:
+      run:
+        working-directory: Study-Ansible/Terraform
+
+    env:
+      TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
+      AWS_DEFAULT_REGION: ap-northeast-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+         terraform_version: '1.7.0'
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform Test
+        run: terraform test
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+
   ansible:
     runs-on: ubuntu-latest
+    needs: terraform_apply 
     env:
         EC2_IP: ${{ secrets.EC2_IP }}
   
