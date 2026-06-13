@@ -20,7 +20,7 @@ jobs:
   
     defaults:
       run:
-        working-directory: Terraform_aws/Terraform_code
+        working-directory: Study-Ansible/Terraform
 
     env:
       TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
