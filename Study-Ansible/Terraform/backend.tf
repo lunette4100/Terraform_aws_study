@@ -2,8 +2,8 @@ terraform {
 
   backend "s3" {
     bucket = "terraform-study-momo"
-    key    = "terraform.tfstate"
+    key    = "ansible-study-tf.tfstate"
     region = "ap-northeast-1"
   }
-  
+
 }
