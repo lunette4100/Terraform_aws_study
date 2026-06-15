@@ -3,7 +3,6 @@ name: workflow_terraform_plan
 on:
   push:
     branches:
-      - main
       - Terraform
 
   pull_request:
