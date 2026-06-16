@@ -98,4 +98,8 @@ jobs:
         run: |
           ansible -i inventory web -m ping
 
+      - name: Ansible playbook
+        run: |
+          ansible-playbook -i inventory playbook.yaml 
+
      
