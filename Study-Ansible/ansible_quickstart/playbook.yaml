@@ -1,0 +1,22 @@
+- name: Javaのインストール
+  hosts: web
+  become: true
+
+  tasks:
+   - name: EC2接続確認
+     ansible.builtin.ping:
+     register: ping_result
+
+   - name: 接続確認結果を表示
+     ansible.builtin.debug:
+     var: ping_result
+
+   - name: Java 21 をインストール
+     ansible.builtin.dnf:
+        name: java-21-amazon-corretto-devel
+        state: present 
+
+   - name: Java バージョン確認
+     ansible.builtin.command: java -version
+     register: java_version
+     changed_when: false
