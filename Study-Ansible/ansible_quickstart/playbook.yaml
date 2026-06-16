@@ -9,7 +9,7 @@
 
    - name: 接続確認結果を表示
      ansible.builtin.debug:
-     var: ping_result
+       var: ping_result
 
    - name: Java 21 をインストール
      ansible.builtin.dnf:
