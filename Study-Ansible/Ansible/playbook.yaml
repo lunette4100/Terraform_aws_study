@@ -30,12 +30,12 @@
         name: git
         state: present
     
-    - name: Java バージョンコマンド
-      ansible.builtin.command: git -version
+    - name: git バージョンコマンド
+      ansible.builtin.command: git --version
       register: git_version
       changed_when: false
 
-    - name: Java バージョン確認
+    - name: git バージョン確認
       ansible.builtin.debug:
         var: git_version
 
