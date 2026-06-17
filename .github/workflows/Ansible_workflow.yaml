@@ -71,7 +71,7 @@ jobs:
   
     defaults:
       run:
-        working-directory: Study-Ansible/ansible_quickstart
+        working-directory: Study-Ansible/Ansible
 
     steps:
       - name: Checkout repository
