@@ -1,4 +1,4 @@
-- name: Javaのインストール
+- name: Javaのインストール/Springboot起動
   hosts: web
   become: true
 
@@ -16,10 +16,28 @@
         name: java-21-amazon-corretto-devel
         state: present 
 
-    - name: Java バージョン確認
+    - name: Java バージョンコマンド
       ansible.builtin.command: java -version
       register: java_version
       changed_when: false
+
+    - name: Java バージョン確認
+      ansible.builtin.debug:
+        var: java_version
+
+    - name: git をインストール
+      ansible.builtin.dnf:
+        name: git
+        state: present
+    
+    - name: Java バージョンコマンド
+      ansible.builtin.command: git -version
+      register: git_version
+      changed_when: false
+
+    - name: Java バージョン確認
+      ansible.builtin.debug:
+        var: git_version
 
     - name: git clone
       ansible.builtin.git:
