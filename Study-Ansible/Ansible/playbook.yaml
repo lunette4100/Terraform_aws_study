@@ -23,7 +23,7 @@
 
     - name: Java バージョン確認
       ansible.builtin.debug:
-        var: java_version
+        msg: "{{ java_version.stderr_lines[0] }}"
 
     - name: git をインストール
       ansible.builtin.dnf:
@@ -59,7 +59,9 @@
       args:
         chdir: /home/ec2-user/aws-study
       register: bootRun_result
-
+      async: 300
+      poll: 0
+      
     - name: Springboot起動結果を表示
       ansible.builtin.debug:
         var: bootRun_result
