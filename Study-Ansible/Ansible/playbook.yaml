@@ -1,4 +1,4 @@
-- name: Javaのインストール/Springboot起動
+- name: Java/gitのインストール
   hosts: web
   become: true
 
@@ -37,9 +37,14 @@
 
     - name: git バージョン確認
       ansible.builtin.debug:
-        var: git_version
+       msg: "{{ git_version.stdout_lines[0] }}"
+  
+- name: Springboot起動
+  hosts: web
+  become: false
 
-    - name: git clone
+  tasks:
+    - name: git clone(ec2-userとして)
       ansible.builtin.git:
        repo: https://github.com/koujienami/aws-study.git
        dest: /home/ec2-user/aws-study
@@ -49,13 +54,13 @@
     - name: git clone 結果を表示
       ansible.builtin.debug:
         var: git_clone_result
-
+        
     - name: gradlew 実行権限 755 
       ansible.builtin.command: chmod 755 gradlew
       args:
         chdir: /home/ec2-user/aws-study
         
-    - name: spring boot run
+    - name: spring boot run(ec2-userとして)
       ansible.builtin.command: ./gradlew bootRun
       args:
         chdir: /home/ec2-user/aws-study

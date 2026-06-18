@@ -7,10 +7,10 @@ on:
 
   pull_request:
     paths:
-      - "Terraform/**"
+      - "Study-Ansible/Terraform/**"
+      - "Study-Ansible/Ansible/**"
       - ".github/**"
-
-
+      
 jobs:
   terraform_apply:
     runs-on: ubuntu-latest
@@ -66,6 +66,7 @@ jobs:
   ansible:
     runs-on: ubuntu-latest
     needs: terraform_apply 
+
     env:
       EC2_IP: ${{ needs.terraform_apply.outputs.ec2_public_ip }}
   
@@ -87,12 +88,14 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s" "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $EC2_IP >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$EC2_IP" >> ~/.ssh/known_hosts
       
       - name: Create inventory
         run: |
-          echo "[web]" > inventory
-          echo "$EC2_IP ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa" >> inventory
+          cat <<EOF > inventory
+          [web]
+          $EC2_IP ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa
+          EOF
       
       - name: Ansible ping
         run: |
@@ -101,5 +104,4 @@ jobs:
       - name: Ansible playbook
         run: |
           ansible-playbook -i inventory playbook.yaml 
-
-     
+  

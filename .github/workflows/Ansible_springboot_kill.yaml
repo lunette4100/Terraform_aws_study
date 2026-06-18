@@ -1,0 +1,36 @@
+name: workflow_Ansible_apringboot_kill
+on:
+  workflow_dispatch:
+   inputs:
+     ec2_ip:
+       type: string
+       required: true
+       description: "停止したいEC2のPublic IPを入力してください。Springbootを停止します。"
+
+  
+     
+jobs:
+
+ springboot_kill:
+    runs-on: ubuntu-latest
+    env:
+     EC2_IP: ${{ github.event.inputs.ec2_ip }}
+    
+    steps:
+      - name: Install SSH key
+        uses: step-security/ssh-key-action@v2
+        with: 
+          key: ${{ secrets.SSH_KEY }} 
+          name: id_rsa 
+
+      - name: Add Known_hosts
+        run: |
+           mkdir -p ~/.ssh
+           ssh-keyscan -H "$EC2_IP" >> ~/.ssh/known_hosts 
+               
+      - name: Springboot kill
+        run: |
+          ssh ec2-user@$"EC2_IP" << 'EOF'
+          pgrep -fl 'DemoApplication'
+          pkill -f 'DemoApplication'
+          EOF
