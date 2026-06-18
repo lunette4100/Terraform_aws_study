@@ -1,14 +1,13 @@
 name: workflow_Ansible_apringboot_kill
+
 on:
   workflow_dispatch:
    inputs:
      ec2_ip:
        type: string
        required: true
-       description: "停止したいEC2のPublic IPを入力してください。Springbootを停止します。"
+       description: "停止したいEC2のPublic IPを入力してください。Springbootを停止します。" 
 
-  
-     
 jobs:
 
  springboot_kill:
