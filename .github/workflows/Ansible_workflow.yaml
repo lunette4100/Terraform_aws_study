@@ -24,6 +24,8 @@ jobs:
 
     env:
       TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
+      TF_VAR_sns_email_address: ${{ secrets.TF_VAR_SNSS_EMAIL_ADDRESS }}
+      TF_VAR_rds_password: ${{ secrets.TF_VAR_RDS_PASSWORD }}
       AWS_DEFAULT_REGION: ap-northeast-1
 
     outputs:

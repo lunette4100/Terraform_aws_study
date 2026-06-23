@@ -47,9 +47,8 @@ run "check_port" {
 
 }
 
-#テスト専用値
 variables {
-  key_name         = "dummy-key"
-  rds_password     = "dummy-password-1234"
-  sns_email_adress = "dummy@example.com"
+  key_name          = "dummy-key"
+  sns_email_address = "test@example.com"
+  rds_password      = "dummy-password"
 }
