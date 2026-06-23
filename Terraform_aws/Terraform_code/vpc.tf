@@ -22,7 +22,7 @@ resource "aws_subnet" "publicsubnet_A" {
   cidr_block              = "10.0.1.0/24"
   availability_zone       = var.default_az[0]
   map_public_ip_on_launch = true
-
+ 
   tags = {
     Name = "terraform-publicsubnet-a"
   }
@@ -33,13 +33,32 @@ resource "aws_subnet" "publicsubnet_B" {
   cidr_block              = "10.0.2.0/24"
   availability_zone       = var.default_az[1]
   map_public_ip_on_launch = true
-
+ 
   tags = {
     Name = "terraform-publicsubnet-b"
   }
 
 }
+resource "aws_subnet" "privatesubnet_A" {
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "10.0.11.0/24"
+  availability_zone = var.default_az[0]
+  
+  tags = {
+    Name = "terraform-privatesubnet-a"
+  }
 
+}
+resource "aws_subnet" "privatesubnet_B" {
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "10.0.12.0/24"
+  availability_zone = var.default_az[1] 
+  
+  tags = {
+    Name = "terraform-privatesubnet-b"
+  }
+  
+}
 resource "aws_route_table" "routetable" {
   vpc_id = aws_vpc.vpc.id
 }
@@ -52,39 +71,7 @@ resource "aws_route_table_association" "public-routetable-a" {
   subnet_id      = aws_subnet.publicsubnet_A.id
   route_table_id = aws_route_table.routetable.id
 }
-
-resource "aws_security_group" "ec2_ssh" {
-  name        = "ec2-ssh-sg"
-  description = "Security group for EC2 SSH access"
-  vpc_id      = aws_vpc.vpc.id
-  tags = {
-    Name = "ec2-ssh-sg"
-  }
-}
-resource "aws_vpc_security_group_ingress_rule" "ec2_in_ssh" {
-  security_group_id = aws_security_group.ec2_ssh.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 22
-  to_port           = 22
-  ip_protocol       = "tcp"
-}
-resource "aws_vpc_security_group_egress_rule" "ec2_eg_ssh" {
-  security_group_id = aws_security_group.ec2_ssh.id
-  ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
-}
-
-resource "aws_instance" "tf_ec2" {
-  ami           = "ami-0f18986364089c4ab"
-  instance_type = "t3.micro"
-  subnet_id     = aws_subnet.publicsubnet_A.id
-  vpc_security_group_ids = [
-    aws_security_group.ec2_ssh.id
-  ]
-  key_name = var.key_name
-
-  tags = {
-    Name = "terraform-ec2"
-  }
-
+resource "aws_route_table_association" "public-routetable-b" {
+  subnet_id      = aws_subnet.publicsubnet_B.id
+  route_table_id = aws_route_table.routetable.id
 }

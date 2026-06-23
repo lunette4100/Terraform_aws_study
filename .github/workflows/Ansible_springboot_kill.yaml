@@ -1,31 +1,41 @@
 name: workflow_Ansible_springboot_kill
 
+
 on:
   workflow_dispatch:
    inputs:
-     ec2_ip:
-       type: string
+    ec2_id:
        required: true
-       description: "停止したいEC2のPublic IPを入力してください。Springbootを停止します。" 
+       description: "Springbootを停止します。EC2InstanceのIDを入力してください。"
 
 jobs:
 
- springboot_kill:
+  Springboot_kill:
     runs-on: ubuntu-latest
-    env:
-     EC2_IP: ${{ github.event.inputs.ec2_ip }}
+    defaults:
+      run:
+        working-directory: Study-Ansible/Ansible
     
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
-      - name: Install SSH key
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN_TEST }}
+          aws-region: ap-northeast-1
+
+      - name: Conect to EC2  
         run: |
-          mkdir -p ~/.ssh
-          printf "%s" "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$EC2_IP" >> ~/.ssh/known_hosts
-          
-      - name: Springboot kill
-        run: |
-          ssh "ec2-user@$EC2_IP" << 'EOF'
-          pgrep -fl 'DemoApplication'
-          pkill -f 'DemoApplication'
-          EOF
+         aws ssm send-command \
+         --document-name "AWS-RunShellScript" \
+         --parameters 'commands=["pgrep -fl DemoApplication","pkill -f DemoApplication"]' \
+         --instance-ids "Key=instanceids,Values=${{ github.event.inputs.ec2_id }}" \
+         --region ap-northeast-1
+      
+      
