@@ -1,0 +1,107 @@
+name: workflow_Ansible
+
+on:
+  push:
+    branches:
+      - Terraform
+
+  pull_request:
+    paths:
+      - "Terraform_aws/Terraform_code/**"
+      - "Study-Ansible/Ansible/**"
+      - ".github/**"
+      
+jobs:
+  terraform_apply:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+  
+    defaults:
+      run:
+        working-directory: Terraform_aws/Terraform_code
+
+    env:
+      TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
+      AWS_DEFAULT_REGION: ap-northeast-1
+
+    outputs:
+      ec2_public_ip: ${{ steps.get_ec2_ip.outputs.ec2_public_ip }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+         terraform_version: '1.7.0'
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform Test
+        run: terraform test
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        id: get_ec2_ip
+        run: |
+          terraform apply -auto-approve tfplan
+          ip=$(terraform output -raw ec2_public_ip)
+          echo "ec2_public_ip=$ip" >> "$GITHUB_OUTPUT"
+
+  ansible:
+    runs-on: ubuntu-latest
+    needs: terraform_apply 
+
+    env:
+      EC2_IP: ${{ needs.terraform_apply.outputs.ec2_public_ip }}
+  
+    defaults:
+      run:
+        working-directory: Study-Ansible/Ansible
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$EC2_IP" >> ~/.ssh/known_hosts
+      
+      - name: Create inventory
+        run: |
+          cat <<EOF > inventory
+          [web]
+          $EC2_IP ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa
+          EOF
+      
+      - name: Ansible ping
+        run: |
+          ansible -i inventory web -m ping
+
+      - name: Ansible playbook
+        run: |
+          ansible-playbook -i inventory playbook.yaml 
+  

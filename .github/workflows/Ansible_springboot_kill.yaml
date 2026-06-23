@@ -1,0 +1,41 @@
+name: workflow_Ansible_springboot_kill
+
+
+on:
+  workflow_dispatch:
+   inputs:
+    ec2_id:
+       required: true
+       description: "Springbootを停止します。EC2InstanceのIDを入力してください。"
+
+jobs:
+
+  Springboot_kill:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Study-Ansible/Ansible
+    
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN_TEST }}
+          aws-region: ap-northeast-1
+
+      - name: Conect to EC2  
+        run: |
+         aws ssm send-command \
+         --document-name "AWS-RunShellScript" \
+         --parameters 'commands=["pgrep -fl DemoApplication","pkill -f DemoApplication"]' \
+         --instance-ids "Key=instanceids,Values=${{ github.event.inputs.ec2_id }}" \
+         --region ap-northeast-1
+      
+      

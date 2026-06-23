@@ -1,0 +1,40 @@
+name: Destroy
+
+on:
+  workflow_dispatch:
+   inputs:
+     confirm:
+       required: true
+       description: "すべての環境を破棄しますか。（destroyと入力）"
+      
+jobs:
+ Terraform_destroy:
+    runs-on: ubuntu-latest  
+    permissions:
+      id-token: write
+      contents: read
+    if: ${{ github.event.inputs.confirm == 'destroy' }}
+    defaults:
+      run:
+        working-directory: Terraform_aws/Terraform_code
+   
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+         terraform_version: '1.7.0'
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
