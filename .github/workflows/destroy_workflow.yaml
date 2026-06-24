@@ -5,7 +5,7 @@ on:
    inputs:
      confirm:
        required: true
-       description: "すべての環境を破棄しますか。（destroyと入力）"
+       description: "すべての環境を破棄しますか。（destroyと入力）*事前にコンソール画面でRDSと CloudWatch Logs のロググループの削除保護を外してください。"
       
 jobs:
  Terraform_destroy:
