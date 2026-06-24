@@ -24,12 +24,12 @@ jobs:
 
     env:
       TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
-      TF_VAR_sns_email_address: ${{ secrets.TF_VAR_SNSS_EMAIL_ADDRESS }}
+      TF_VAR_sns_email_address: ${{ secrets.TF_VAR_SNS_EMAIL_ADDRESS }}
       TF_VAR_rds_password: ${{ secrets.TF_VAR_RDS_PASSWORD }}
       AWS_DEFAULT_REGION: ap-northeast-1
 
     outputs:
-      ec2_public_ip: ${{ steps.get_ec2_ip.outputs.ec2_public_ip }}
+      ec2_instance_id: ${{ steps.get_ec2_id.outputs.ec2_instance_id }}
 
     steps:
       - name: Checkout repository
@@ -59,49 +59,66 @@ jobs:
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        id: get_ec2_ip
+        id: get_ec2_id
         run: |
           terraform apply -auto-approve tfplan
-          ip=$(terraform output -raw ec2_public_ip)
-          echo "ec2_public_ip=$ip" >> "$GITHUB_OUTPUT"
+          id=$(terraform output -raw ec2_instance_id)
+          echo "ec2_instance_id=$id" >> "$GITHUB_OUTPUT"
 
+  
   ansible:
     runs-on: ubuntu-latest
     needs: terraform_apply 
-
-    env:
-      EC2_IP: ${{ needs.terraform_apply.outputs.ec2_public_ip }}
   
     defaults:
       run:
         working-directory: Study-Ansible/Ansible
+    env:
+      EC2_ID: ${{ needs.terraform_apply.outputs.ec2_instance_id }}
+  
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Install SSM Session Manager plugin
+        run: |
+          curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+          sudo dpkg -i session-manager-plugin.deb
+          session-manager-plugin --version
+
       - name: Install Ansible
         run: |
           sudo apt update
-          sudo apt install -y ansible
+          sudo apt install -y ansible 
 
-      - name: Setup SSH
+      - name: Inject  pipx
         run: |
-          mkdir -p ~/.ssh
-          printf "%s" "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$EC2_IP" >> ~/.ssh/known_hosts
-      
+          pipx inject ansible-core boto3 botocore
+
       - name: Create inventory
         run: |
-          cat <<EOF > inventory
-          [web]
-          $EC2_IP ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa
-          EOF
+            cat <<EOF > inventory
+            [web]
+            $EC2_ID
+            [web:vars]
+            ansible_connection=aws_ssm
+            ansible_aws_ssm_region=ap-northeast-1
+            ansible_aws_ssm_bucket_name=terraform-study-momo
+            EOF
       
       - name: Ansible ping
         run: |
-          ansible -i inventory web -m ping
+          ansible -vvv -i inventory web -m ping
 
       - name: Ansible playbook
         run: |
