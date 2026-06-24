@@ -1,11 +1,11 @@
-### 概要
+# 概要
 このリポジトリはTerraformによるAWSインフラ環境構築とGitHubActionsのワークフローを通してCI/CD環境を構築できる構成を記載しています。
 
 ## 実装内容
 CD環境構築としてアプリケーションの起動までを想定しています。DBの設定は手動で行ってください。
-# Terraform
+### Terraform
 VPC / EC2 / RDS / ALB / CloudWatch Alarm / WAF / CloudWatch Logs 
-# Github Actions（CI/CD）
+### Github Actions（CI/CD）
 ・ワークフロー起動について
 Terraformブランチにおけるpushもしくはpull requestで起動します。
 
@@ -14,10 +14,10 @@ Ansible_workflow:AWS環境のDeployからAnsibleのPlaybookを起動します。
 destroy_workflow:構築したAWS環境を削除します。（手動起動）
 Ansible_springboot_kill:EC2で起動するSpringbootの停止を行います。（手動起動）
 
-# Ansible
+### Ansible
 構築したAWS環境のEC2に接続し、Java21・Gitをインストールし、webアプリケーションをgit colneにて取り込み、実行を行います。
 
-##　構築前準備
+## 構築前準備
 1. AWSアカウント・GitHubアカウントを用意
 2. IAMロール（CloudWatch/CloudWatch Logs/EC2/ELB/ELB v2/IAM/RDS/S3/SNS/WAF V2 ）作成権限をもつポリシーをアタッチしたもの
 3. S3バケット（バックエンドに使用）の作成

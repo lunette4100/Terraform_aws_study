@@ -25,6 +25,20 @@
       ansible.builtin.debug:
         msg: "{{ java_version.stderr_lines[0] }}"
 
+    - name: MySQL クライアント（MariaDB）をインストール
+      ansible.builtin.dnf:
+       name: mariadb105
+       state: present
+
+    - name: MYSQL バージョンコマンド
+      ansible.builtin.command: mysql --version
+      register: mysql_version
+      changed_when: false
+
+    - name: MYSQL バージョン確認
+      ansible.builtin.debug:
+        msg: "{{ mysql_version.stdout_lines[0] }}"
+
     - name: git をインストール
       ansible.builtin.dnf:
         name: git
