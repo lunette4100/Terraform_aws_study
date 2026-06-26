@@ -113,12 +113,11 @@
       ansible.builtin.pause:
         seconds: 30
       
-    - name: Springboot起動結果取得
-      ansible.builtin.command: "pgrep -fl DemoApplication"
-      register: pgrep_result
-      changed_when: false
-      failed_when: false
-
-    - name: springboot起動結果確認
-      ansible.builtin.debug:
-        var: pgrep_result
+    - name: Spring Boot ヘルスチェック
+      ansible.builtin.uri:
+      url: "{{alb_url}}"
+      status_code: 200
+      register: health
+      until: health.status == 200
+      retries: 10
+      delay: 5

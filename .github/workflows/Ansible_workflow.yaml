@@ -35,6 +35,7 @@ jobs:
     outputs:
       ec2_instance_id: ${{ steps.get_outputs.outputs.ec2_instance_id }}
       rds_endpoint: ${{ steps.get_outputs.outputs.rds_endpoint }}
+      alb_url: ${{ steps.get_outputs.outputs.alb_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -71,8 +72,10 @@ jobs:
         run: |
           id=$(terraform output -raw ec2_instance_id)
           endpoint=$(terraform output -raw rds_endpoint)
+          url=$(terraform output -raw alb_url)
           echo "ec2_instance_id=$id" >> "$GITHUB_OUTPUT"
-          echo "rds_endpoint=$endpoint" >> "$GITHUB_OUTPUT"        
+          echo "rds_endpoint=$endpoint" >> "$GITHUB_OUTPUT"
+          echo "alb_url=$url" >> "$GITHUB_OUTPUT"         
   
   ansible:
     runs-on: ubuntu-latest
@@ -84,6 +87,7 @@ jobs:
     env:
       EC2_ID: ${{ needs.terraform_apply.outputs.ec2_instance_id }}
       RDS_ENDPOINT: ${{ needs.terraform_apply.outputs.rds_endpoint }}
+      ALB_URL: ${{ needs.terraform_apply.outputs.alb_url }}
     permissions:
       id-token: write
       contents: read
