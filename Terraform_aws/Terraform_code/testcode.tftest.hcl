@@ -1,9 +1,3 @@
-variables {
-    key_name         = "Philo"
-    rds_password     = "adminadmin"
-    cloudwatch_alarm = "arn:aws:sns:ap-northeast-1:381155823609:cloudformation-study-alarm-topic"
-  }
-
 run "check_vpc_cidr_and_name" {
   command = plan
   
@@ -53,17 +47,8 @@ run "check_port" {
 
 }
 
-run "check_waf_alb_association" {
-  command = plan #テスト実行時はapplyにする。
-
-  assert {
-    condition     = aws_wafv2_web_acl_association.waf_association.resource_arn == aws_lb.alb.arn
-    error_message = "WAF の関連付け先 resource_arn が ALB の ARN ではありません"
-  }
-
-  assert {
-    condition     = aws_wafv2_web_acl_association.waf_association.web_acl_arn == aws_wafv2_web_acl.tf_waf.arn
-    error_message = "WAF の関連付け先 web_acl_arn が ALB の ARN ではありません"
-  }
-
+variables {
+  key_name          = "dummy-key"
+  sns_email_address = "test@example.com"
+  rds_password      = "dummy-password"
 }

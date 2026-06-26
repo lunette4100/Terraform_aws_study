@@ -7,7 +7,7 @@ resource "aws_lb" "alb" {
     aws_subnet.publicsubnet_A.id,
     aws_subnet.publicsubnet_B.id
   ]
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Name = "tf-alb"

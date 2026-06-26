@@ -1,0 +1,123 @@
+- name: Java/gitのインストール
+  hosts: web
+  become: true
+
+  tasks:
+    - name: EC2接続確認
+      ansible.builtin.ping:
+      register: ping_result
+
+    - name: 接続確認結果を表示
+      ansible.builtin.debug:
+        var: ping_result
+
+    - name: Java 21 をインストール
+      ansible.builtin.dnf:
+        name: java-21-amazon-corretto-devel
+        state: present 
+
+    - name: Java バージョンコマンド
+      ansible.builtin.command: java -version
+      register: java_version
+      changed_when: false
+
+    - name: Java バージョン確認
+      ansible.builtin.debug:
+        msg: "{{ java_version.stderr_lines[0] }}"
+
+    - name: MySQL クライアント（MariaDB）をインストール
+      ansible.builtin.dnf:
+       name: mariadb105
+       state: present
+
+    - name: MYSQL バージョンコマンド
+      ansible.builtin.command: mysql --version
+      register: mysql_version
+      changed_when: false
+
+    - name: MYSQL バージョン確認
+      ansible.builtin.debug:
+        msg: "{{ mysql_version.stdout_lines[0] }}"
+
+    - name: git をインストール
+      ansible.builtin.dnf:
+        name: git
+        state: present
+    
+    - name: git バージョンコマンド
+      ansible.builtin.command: git --version
+      register: git_version
+      changed_when: false
+
+    - name: git バージョン確認
+      ansible.builtin.debug:
+       msg: "{{ git_version.stdout_lines[0] }}"
+
+- name: git clone
+  hosts: web
+  become: true
+  become_user: ec2-user
+  tasks:
+    - name: git clone 
+      ansible.builtin.git:
+       repo: https://github.com/koujienami/aws-study.git
+       dest: /home/ec2-user/aws-study
+       force: true      
+      register: git_clone_result 
+
+    - name: git clone 結果を表示
+      ansible.builtin.debug:
+        var: git_clone_result
+
+- name: RDSテーブル作成・接続設定
+  hosts: web
+  become: true
+  become_user: ec2-user  
+  tasks: 
+    - name: アプリケーションの接続設定
+      ansible.builtin.template:
+       src: application.properties.j2
+       dest: /home/ec2-user/aws-study/src/main/resources/application.properties
+       owner: ec2-user
+       group: ec2-user
+       mode: "0644"
+
+    - name: student テーブルを作成
+      ansible.builtin.shell: |
+        mysql -h {{ db_host }} -P 3306 -u {{ db_user }} -p'{{ db_password }}' {{ db_name }}   <<'SQL'
+        USE {{ db_name }};
+
+        CREATE TABLE IF NOT EXISTS student (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL
+        );
+        INSERT IGNORE INTO student (name) VALUES ('Kouji Enami');
+        SQL
+        
+- name: springboot起動
+  hosts: web
+  become: true
+  become_user: ec2-user
+  tasks:
+    - name: gradlew 実行権限 755 
+      ansible.builtin.command: chmod 755 gradlew
+      args:
+        chdir: /home/ec2-user/aws-study
+
+    - name: spring boot run
+      ansible.builtin.shell: "nohup ./gradlew bootRun > /home/ec2-user/aws-study/bootrun.log 2>&1 &"
+      args:
+       chdir: /home/ec2-user/aws-study
+
+    - name: Wait
+      ansible.builtin.pause:
+        seconds: 30
+      
+    - name: Spring Boot ヘルスチェック
+      ansible.builtin.uri:
+       url: "{{ alb_url }}"
+       status_code: 200
+      register: health
+      until: health.status == 200
+      retries: 10
+      delay: 5

@@ -5,7 +5,7 @@ on:
    inputs:
      confirm:
        required: true
-       description: "すべての環境を破棄しますか。（destroyと入力）"
+       description: "すべての環境を破棄しますか。（destroyと入力）*事前にコンソール画面でRDSと CloudWatch Logs のロググループの削除保護を外してください。"
       
 jobs:
  Terraform_destroy:
@@ -29,7 +29,7 @@ jobs:
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
-          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN_TEST}}
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
           aws-region: ap-northeast-1
 
       - name: Setup Terraform

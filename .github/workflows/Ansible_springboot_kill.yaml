@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Study-Ansible/Ansible
+        working-directory: Study-Ansible/Ansible  
     permissions:
       id-token: write
       contents: read
@@ -30,15 +30,15 @@ jobs:
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
-          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN_TEST }}
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
           aws-region: ap-northeast-1
 
       - name: Conect to EC2  
         run: |
          aws ssm send-command \
          --document-name "AWS-RunShellScript" \
-         --parameters 'commands=["pgrep -fl DemoApplication","pkill -f DemoApplication"]' \
-         --instance-ids "Key=instanceids,Values=${{ github.event.inputs.ec2_id }}" \
+         --parameters 'commands=["pgrep -fl java","pkill -f gradlew"]' \
+         --instance-ids "${{ github.event.inputs.ec2_id }}" \
          --region ap-northeast-1
       
       
