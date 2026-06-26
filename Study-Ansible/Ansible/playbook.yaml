@@ -115,8 +115,8 @@
       
     - name: Spring Boot ヘルスチェック
       ansible.builtin.uri:
-      url: "{{alb_url}}"
-      status_code: 200
+       url: "{{ alb_url }}"
+       status_code: 200
       register: health
       until: health.status == 200
       retries: 10

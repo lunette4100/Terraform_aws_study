@@ -131,7 +131,7 @@ jobs:
             db_name=terraform_rds
             db_user=admin
             db_password=${{ secrets.TF_VAR_RDS_PASSWORD}}
-
+            alb_url=$ALB_URL
             EOF
       
       - name: Show inventory
